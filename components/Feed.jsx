@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import PromptCard from './PromptCard';
+import { HashLoader } from 'react-spinners';
 
 const PromptCardList = ({ data, handleTagClick }) => (
   <div className="mt-16 prompt_layout">
@@ -14,6 +15,7 @@ const PromptCardList = ({ data, handleTagClick }) => (
 const Feed = () => {
   const [searchText, setSearchText] = useState('');
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const filteredPosts = posts.filter(
     (post) =>
       post.prompt.toLowerCase().includes(searchText.trim().toLowerCase()) ||
@@ -33,10 +35,12 @@ const Feed = () => {
   };
 
   useEffect(() => {
+    setLoading(true);
     const fetchPosts = async () => {
       const response = await fetch('/api/prompt');
       const data = await response.json();
       setPosts(data);
+      setLoading(false);
     };
 
     fetchPosts();
@@ -55,7 +59,18 @@ const Feed = () => {
         />
       </form>
 
-      <PromptCardList data={filteredPosts} handleTagClick={handleTagClick} />
+      {loading && (
+        <>
+          {' '}
+          <div className="flex justify-center items-center mt-6">
+            <HashLoader color="#FF5722" />
+          </div>
+        </>
+      )}
+
+      {!loading && (
+        <PromptCardList data={filteredPosts} handleTagClick={handleTagClick} />
+      )}
     </section>
   );
 };

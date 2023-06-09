@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 import Profile from '@components/Profile';
+import { HashLoader } from 'react-spinners';
 
 const MyProfile = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const handleEdit = (post) => {
     router.push(`/update-prompt?id=${post._id}`);
@@ -34,23 +36,37 @@ const MyProfile = () => {
   };
 
   useEffect(() => {
+    setLoading(true);
     const fetchPosts = async () => {
       const response = await fetch(`/api/users/${session?.user.id}/posts`);
       const data = await response.json();
       setPosts(data);
+      setLoading(false);
     };
 
     if (session?.user?.id) fetchPosts();
   }, []);
 
   return (
-    <Profile
-      name="Meu Perfil"
-      desc="Bem vindo ao seu perfil"
-      data={posts}
-      handleEdit={handleEdit}
-      handleDelete={handleDelete}
-    />
+    <>
+      {loading && (
+        <>
+          {' '}
+          <div className="flex justify-center items-center">
+            <HashLoader color="#FF5722" />
+          </div>
+        </>
+      )}
+      {!loading && (
+        <Profile
+          name="Meu Perfil"
+          desc="Bem vindo ao seu perfil"
+          data={posts}
+          handleEdit={handleEdit}
+          handleDelete={handleDelete}
+        />
+      )}
+    </>
   );
 };
 
